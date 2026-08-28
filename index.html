@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fffaf0" />
+    <meta name="description" content="Practice multiplication facts from 2 to 12 with multiple-choice and fill-in rounds." />
+    <meta property="og:title" content="Fact Pop! — Multiplication Practice Game" />
+    <meta property="og:description" content="Make multiplication facts stick with multiple-choice and fill-in rounds." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nickilis613.github.io/multiplication-facts-game/" />
+    <meta property="og:image" content="https://nickilis613.github.io/multiplication-facts-game/public/og.png" />
+    <title>Fact Pop! — Multiplication Practice Game</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-glow" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="Fact Pop home"><span class="brand-mark">×</span><span>Fact Pop!</span></a>
+      <div class="streak-pill"><span aria-hidden="true">✦</span> Streak <strong id="header-streak">0</strong></div>
+    </header>
+
+    <main class="layout">
+      <section class="game-column">
+        <div class="intro">
+          <p class="eyebrow">Quick multiplication practice</p>
+          <h1>Make those facts <span>stick!</span></h1>
+        </div>
+
+        <section class="game-card" aria-labelledby="question-heading">
+          <div class="card-topline">
+            <div class="mode-switch" aria-label="Answer mode">
+              <button class="mode-button active" id="choice-mode" type="button" aria-pressed="true">Multiple choice</button>
+              <button class="mode-button" id="fill-mode" type="button" aria-pressed="false">Fill it in</button>
+            </div>
+            <p id="question-count">Question 1 of 10</p>
+          </div>
+
+          <div class="progress-track" role="progressbar" aria-label="Round progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+
+          <div id="game-panel">
+            <p class="prompt">What is the product?</p>
+            <h2 class="fact" id="question-heading"><span id="left-factor">6</span><em>×</em><span id="right-factor">7</span><small>=</small><strong>?</strong></h2>
+
+            <div class="choice-grid" id="choice-grid" aria-label="Answer choices"></div>
+
+            <form class="fill-form hidden" id="fill-form">
+              <label class="sr-only" for="answer-input">Your answer</label>
+              <input id="answer-input" type="number" inputmode="numeric" min="0" autocomplete="off" placeholder="Type your answer" />
+              <button class="primary-button" type="submit">Check it</button>
+            </form>
+
+            <div class="feedback" id="feedback" aria-live="polite"></div>
+          </div>
+
+          <div class="results hidden" id="results">
+            <div class="trophy" aria-hidden="true">★</div>
+            <p class="eyebrow">Round complete</p>
+            <h2 id="result-title">You got 0 out of 10!</h2>
+            <p id="result-message"></p>
+            <button class="primary-button replay-button" id="replay-button" type="button">↻ Play another round</button>
+          </div>
+        </section>
+      </section>
+
+      <aside class="stats" aria-label="Round stats">
+        <section class="score-card">
+          <p>Round score</p>
+          <strong><span id="score">0</span><small> / 10</small></strong>
+        </section>
+        <section class="tip-card">
+          <div><strong>Best streak</strong><span id="best-streak">0</span></div>
+          <hr />
+          <p><span aria-hidden="true">⌨</span> Press 1–4 in multiple choice, or type and press Enter in fill-in mode.</p>
+        </section>
+        <p class="range-label">Facts from 2 × 2 to 12 × 12</p>
+      </aside>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>
+
