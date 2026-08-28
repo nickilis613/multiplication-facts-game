@@ -2,6 +2,8 @@
 
 Fact Pop! is a fast, friendly multiplication-practice game for facts from 2 × 2 through 12 × 12.
 
+**Play it:** https://nickilis613.github.io/multiplication-facts-game/
+
 ## Game modes
 
 - **Multiple choice:** choose from four answers or press keys 1–4.
@@ -9,7 +11,11 @@ Fact Pop! is a fast, friendly multiplication-practice game for facts from 2 × 2
 
 Each round contains ten questions and tracks the score, current streak, and best streak. Players get immediate feedback and can start a fresh round in either mode.
 
-## Run locally
+## Run the GitHub Pages version locally
+
+Open `index.html` directly, or serve the repository with any static web server.
+
+## Run the app source locally
 
 ```bash
 npm install
