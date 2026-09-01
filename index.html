@@ -33,7 +33,10 @@
               <button class="mode-button active" id="choice-mode" type="button" aria-pressed="true">Multiple choice</button>
               <button class="mode-button" id="fill-mode" type="button" aria-pressed="false">Fill it in</button>
             </div>
-            <p id="question-count">Question 1 of 10</p>
+            <div class="round-controls">
+              <button class="timer-toggle" id="timer-toggle" type="button" aria-pressed="true"><span aria-hidden="true">⏱</span> Timer on</button>
+              <p id="question-count">Question 1 of 10</p>
+            </div>
           </div>
 
           <div class="progress-track" role="progressbar" aria-label="Round progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
@@ -41,6 +44,13 @@
           </div>
 
           <div id="game-panel">
+            <div class="timer-row" id="timer-row">
+              <span>Time</span>
+              <div class="timer-track" role="progressbar" aria-label="Time remaining" aria-valuemin="0" aria-valuemax="5" aria-valuenow="5">
+                <div class="timer-fill" id="timer-fill"></div>
+              </div>
+              <strong id="timer-value">5.0s</strong>
+            </div>
             <p class="prompt">What is the product?</p>
             <h2 class="fact" id="question-heading"><span id="left-factor">6</span><em>×</em><span id="right-factor">7</span><small>=</small><strong>?</strong></h2>
 
@@ -58,7 +68,7 @@
           <div class="results hidden" id="results">
             <div class="trophy" aria-hidden="true">★</div>
             <p class="eyebrow">Round complete</p>
-            <h2 id="result-title">You got 0 out of 10!</h2>
+            <h2 id="result-title">0 points!</h2>
             <p id="result-message"></p>
             <button class="primary-button replay-button" id="replay-button" type="button">↻ Play another round</button>
           </div>
@@ -67,11 +77,13 @@
 
       <aside class="stats" aria-label="Round stats">
         <section class="score-card">
-          <p>Round score</p>
-          <strong><span id="score">0</span><small> / 10</small></strong>
+          <p>Round points</p>
+          <strong><span id="score">0</span><small> pts</small></strong>
         </section>
         <section class="tip-card">
           <div><strong>Best streak</strong><span id="best-streak">0</span></div>
+          <hr />
+          <p class="points-tip"><span aria-hidden="true">⚡</span> Correct answers earn 100 points, plus up to 100 more for speed.</p>
           <hr />
           <p><span aria-hidden="true">⌨</span> Press 1–4 in multiple choice, or type and press Enter in fill-in mode.</p>
         </section>
