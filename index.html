@@ -11,7 +11,7 @@
     <meta property="og:url" content="https://nickilis613.github.io/multiplication-facts-game/" />
     <meta property="og:image" content="https://nickilis613.github.io/multiplication-facts-game/public/og.png" />
     <title>Fact Pop! — Multiplication Practice Game</title>
-    <link rel="stylesheet" href="./styles.css?v=timer-2" />
+    <link rel="stylesheet" href="./styles.css?v=sound-1" />
   </head>
   <body>
     <div class="page-glow" aria-hidden="true"></div>
@@ -34,6 +34,7 @@
               <button class="mode-button" id="fill-mode" type="button" aria-pressed="false">Fill it in</button>
             </div>
             <div class="round-controls">
+              <button class="timer-toggle" id="sound-toggle" type="button" aria-pressed="true"><span aria-hidden="true">🔊</span> Sound on</button>
               <button class="timer-toggle" id="timer-toggle" type="button" aria-pressed="true"><span aria-hidden="true">⏱</span> Timer on</button>
               <p id="question-count">Question 1 of 10</p>
             </div>
@@ -91,7 +92,8 @@
       </aside>
     </main>
 
-    <script src="./game.js?v=timer-2"></script>
+    <script src="./sounds.js?v=sound-1"></script>
+    <script src="./game.js?v=sound-1"></script>
   </body>
 </html>
 
