@@ -1,10 +1,16 @@
 const ROUND_LENGTH = 10;
+const QUESTION_TIME_MS = 5000;
 const initialQuestion = { left: 6, right: 7, answer: 42, options: [36, 42, 48, 49] };
 
 const elements = {
   choiceMode: document.querySelector('#choice-mode'),
   fillMode: document.querySelector('#fill-mode'),
   questionCount: document.querySelector('#question-count'),
+  timerToggle: document.querySelector('#timer-toggle'),
+  timerRow: document.querySelector('#timer-row'),
+  timerTrack: document.querySelector('.timer-track'),
+  timerFill: document.querySelector('#timer-fill'),
+  timerValue: document.querySelector('#timer-value'),
   progressTrack: document.querySelector('.progress-track'),
   progressFill: document.querySelector('#progress-fill'),
   gamePanel: document.querySelector('#game-panel'),
@@ -28,11 +34,16 @@ let state = {
   question: initialQuestion,
   questionNumber: 1,
   score: 0,
+  correct: 0,
   streak: 0,
   bestStreak: 0,
   answered: false,
   complete: false,
+  timed: true,
+  timeRemainingMs: QUESTION_TIME_MS,
 };
+
+let timerAnimation = null;
 
 function makeQuestion(previous) {
   let left = 2 + Math.floor(Math.random() * 11);
@@ -91,21 +102,62 @@ function renderQuestion() {
     elements.fillForm.classList.remove('hidden');
     requestAnimationFrame(() => elements.answerInput.focus());
   }
+  startTimer();
 }
 
 function updateStats() {
-  elements.score.textContent = state.score;
+  elements.score.textContent = state.score.toLocaleString();
   elements.headerStreak.textContent = state.streak;
   elements.bestStreak.textContent = state.bestStreak;
 }
 
-function recordAnswer(value) {
+function stopTimer() {
+  if (timerAnimation !== null) cancelAnimationFrame(timerAnimation);
+  timerAnimation = null;
+}
+
+function updateTimerDisplay(milliseconds) {
+  const remaining = Math.max(0, milliseconds);
+  const seconds = remaining / 1000;
+  elements.timerTrack.setAttribute('aria-valuenow', String(seconds));
+  elements.timerFill.style.width = `${(remaining / QUESTION_TIME_MS) * 100}%`;
+  elements.timerValue.textContent = state.timed ? `${seconds.toFixed(1)}s` : 'Off';
+  elements.timerRow.classList.toggle('off', !state.timed);
+  elements.timerRow.classList.toggle('danger', state.timed && remaining <= 1500);
+}
+
+function startTimer() {
+  stopTimer();
+  state.timeRemainingMs = QUESTION_TIME_MS;
+  updateTimerDisplay(QUESTION_TIME_MS);
+  if (!state.timed || state.answered || state.complete) return;
+
+  const deadline = performance.now() + QUESTION_TIME_MS;
+  const tick = (now) => {
+    state.timeRemainingMs = Math.max(0, deadline - now);
+    updateTimerDisplay(state.timeRemainingMs);
+    if (state.timeRemainingMs <= 0) {
+      timerAnimation = null;
+      recordAnswer(null, true);
+      return;
+    }
+    timerAnimation = requestAnimationFrame(tick);
+  };
+  timerAnimation = requestAnimationFrame(tick);
+}
+
+function recordAnswer(value, timedOut = false) {
   if (state.answered || state.complete) return;
+  stopTimer();
   state.answered = true;
   const correct = value === state.question.answer;
+  let earnedPoints = 0;
 
   if (correct) {
-    state.score += 1;
+    const speedBonus = state.timed ? Math.ceil((state.timeRemainingMs / QUESTION_TIME_MS) * 100) : 0;
+    earnedPoints = 100 + speedBonus;
+    state.score += earnedPoints;
+    state.correct += 1;
     state.streak += 1;
     state.bestStreak = Math.max(state.bestStreak, state.streak);
   } else {
@@ -122,7 +174,11 @@ function recordAnswer(value) {
   });
 
   const message = document.createElement('span');
-  message.textContent = correct ? 'Yes — you nailed it!' : `Almost! The answer is ${state.question.answer}.`;
+  message.textContent = correct
+    ? `Yes — +${earnedPoints} points!`
+    : timedOut
+      ? `Time’s up! The answer is ${state.question.answer}.`
+      : `Almost! The answer is ${state.question.answer}.`;
   const nextButton = document.createElement('button');
   nextButton.type = 'button';
   nextButton.className = 'next-button';
@@ -145,22 +201,22 @@ function nextQuestion() {
 }
 
 function finishRound() {
+  stopTimer();
   state.complete = true;
   elements.progressTrack.setAttribute('aria-valuenow', String(ROUND_LENGTH));
   elements.progressFill.style.width = '100%';
   elements.gamePanel.classList.add('hidden');
   elements.results.classList.remove('hidden');
-  elements.resultTitle.textContent = `You got ${state.score} out of ${ROUND_LENGTH}!`;
-  elements.resultMessage.textContent = state.score === ROUND_LENGTH
-    ? 'Perfect score — those facts are popping!'
-    : state.score >= 7
-      ? 'Great work. One more round will make them even faster.'
-      : 'Every try builds stronger math muscles. Keep going!';
+  elements.resultTitle.textContent = `${state.score.toLocaleString()} points!`;
+  elements.resultMessage.textContent = state.correct === ROUND_LENGTH
+    ? 'Perfect round — 10 out of 10 correct!'
+    : `You answered ${state.correct} out of ${ROUND_LENGTH} correctly. Every try builds stronger math muscles.`;
   elements.replayButton.focus();
 }
 
 function startRound(mode = state.mode) {
-  state = { mode, question: makeQuestion(), questionNumber: 1, score: 0, streak: 0, bestStreak: 0, answered: false, complete: false };
+  const timed = state.timed;
+  state = { mode, question: makeQuestion(), questionNumber: 1, score: 0, correct: 0, streak: 0, bestStreak: 0, answered: false, complete: false, timed, timeRemainingMs: QUESTION_TIME_MS };
   elements.choiceMode.classList.toggle('active', mode === 'choice');
   elements.fillMode.classList.toggle('active', mode === 'fill');
   elements.choiceMode.setAttribute('aria-pressed', String(mode === 'choice'));
@@ -171,8 +227,17 @@ function startRound(mode = state.mode) {
   renderQuestion();
 }
 
+function setTimed(timed) {
+  state.timed = timed;
+  elements.timerToggle.setAttribute('aria-pressed', String(timed));
+  elements.timerToggle.innerHTML = `<span aria-hidden="true">⏱</span> Timer ${timed ? 'on' : 'off'}`;
+  if (!state.answered && !state.complete) startTimer();
+  else updateTimerDisplay(state.timeRemainingMs);
+}
+
 elements.choiceMode.addEventListener('click', () => state.mode !== 'choice' && startRound('choice'));
 elements.fillMode.addEventListener('click', () => state.mode !== 'fill' && startRound('fill'));
+elements.timerToggle.addEventListener('click', () => setTimed(!state.timed));
 elements.replayButton.addEventListener('click', () => startRound());
 elements.fillForm.addEventListener('submit', (event) => {
   event.preventDefault();
