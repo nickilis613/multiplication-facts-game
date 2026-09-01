@@ -11,6 +11,8 @@ Fact Pop! is a fast, friendly multiplication-practice game for facts from 2 × 2
 
 Each round contains ten questions and tracks the score, current streak, and best streak. Players get immediate feedback and can start a fresh round in either mode.
 
+Questions are timed for five seconds by default. Correct answers earn 100 points plus a speed bonus of up to 100 points; the timer can be switched off at any time for relaxed practice.
+
 ## Run the GitHub Pages version locally
 
 Open `index.html` directly, or serve the repository with any static web server.
