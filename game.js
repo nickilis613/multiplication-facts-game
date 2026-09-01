@@ -6,6 +6,7 @@ const elements = {
   choiceMode: document.querySelector('#choice-mode'),
   fillMode: document.querySelector('#fill-mode'),
   questionCount: document.querySelector('#question-count'),
+  soundToggle: document.querySelector('#sound-toggle'),
   timerToggle: document.querySelector('#timer-toggle'),
   timerRow: document.querySelector('#timer-row'),
   timerTrack: document.querySelector('.timer-track'),
@@ -29,6 +30,14 @@ const elements = {
   replayButton: document.querySelector('#replay-button'),
 };
 
+const soundEffects = {
+  correct: new Audio(window.FACT_POP_SOUNDS.correct),
+  wrong: new Audio(window.FACT_POP_SOUNDS.wrong),
+};
+soundEffects.correct.volume = 0.48;
+soundEffects.wrong.volume = 0.28;
+Object.values(soundEffects).forEach((sound) => { sound.preload = 'auto'; });
+
 let state = {
   mode: 'choice',
   question: initialQuestion,
@@ -39,11 +48,20 @@ let state = {
   bestStreak: 0,
   answered: false,
   complete: false,
+  soundEnabled: true,
   timed: true,
   timeRemainingMs: QUESTION_TIME_MS,
 };
 
 let timerAnimation = null;
+
+function playSound(kind) {
+  if (!state.soundEnabled) return;
+  const sound = soundEffects[kind];
+  sound.pause();
+  sound.currentTime = 0;
+  sound.play().catch(() => {});
+}
 
 function makeQuestion(previous) {
   let left = 2 + Math.floor(Math.random() * 11);
@@ -163,6 +181,7 @@ function recordAnswer(value, timedOut = false) {
   } else {
     state.streak = 0;
   }
+  playSound(correct ? 'correct' : 'wrong');
   updateStats();
 
   elements.answerInput.disabled = true;
@@ -216,7 +235,8 @@ function finishRound() {
 
 function startRound(mode = state.mode) {
   const timed = state.timed;
-  state = { mode, question: makeQuestion(), questionNumber: 1, score: 0, correct: 0, streak: 0, bestStreak: 0, answered: false, complete: false, timed, timeRemainingMs: QUESTION_TIME_MS };
+  const soundEnabled = state.soundEnabled;
+  state = { mode, question: makeQuestion(), questionNumber: 1, score: 0, correct: 0, streak: 0, bestStreak: 0, answered: false, complete: false, soundEnabled, timed, timeRemainingMs: QUESTION_TIME_MS };
   elements.choiceMode.classList.toggle('active', mode === 'choice');
   elements.fillMode.classList.toggle('active', mode === 'fill');
   elements.choiceMode.setAttribute('aria-pressed', String(mode === 'choice'));
@@ -225,6 +245,12 @@ function startRound(mode = state.mode) {
   elements.results.classList.add('hidden');
   updateStats();
   renderQuestion();
+}
+
+function setSoundEnabled(enabled) {
+  state.soundEnabled = enabled;
+  elements.soundToggle.setAttribute('aria-pressed', String(enabled));
+  elements.soundToggle.innerHTML = `<span aria-hidden="true">${enabled ? '🔊' : '🔇'}</span> Sound ${enabled ? 'on' : 'off'}`;
 }
 
 function setTimed(timed) {
@@ -237,6 +263,7 @@ function setTimed(timed) {
 
 elements.choiceMode.addEventListener('click', () => state.mode !== 'choice' && startRound('choice'));
 elements.fillMode.addEventListener('click', () => state.mode !== 'fill' && startRound('fill'));
+elements.soundToggle.addEventListener('click', () => setSoundEnabled(!state.soundEnabled));
 elements.timerToggle.addEventListener('click', () => setTimed(!state.timed));
 elements.replayButton.addEventListener('click', () => startRound());
 elements.fillForm.addEventListener('submit', (event) => {
